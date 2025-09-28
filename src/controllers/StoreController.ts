@@ -5,7 +5,7 @@ import { Store } from "src/entities/Store"
 
 const repo = () => AppDataSource.getRepository(Store)
 
-export class UserController {
+export class StoreController {
 
     static async getAll(req: Request, res: Response) {
         const stores = await repo().find({ order: { name: "ASC" }})
@@ -38,7 +38,7 @@ export class UserController {
         try {
         const createdStore = repo().create({name, location})
         await repo().save(createdStore)
-        res.status(201).send("User created!")
+        res.status(201).send("Store created!")
         } catch (error) {
         console.log(error)
         res.status(500).send("Error while creating new store")
@@ -47,9 +47,9 @@ export class UserController {
 
     static async update(req:Request, res: Response) {
         const id: number = Number(req.params.id)
-        const {name} = req.body.name
+        const {location} = req.body
 
-        if (!name) {
+        if (!location) {
         res.status(404).send("Name not found")
         }
 
@@ -60,7 +60,7 @@ export class UserController {
         }
 
         try {
-        store.name = name
+        store.location = location
         const savedStore = await repo().save(store)
         res.status(200).send("Store updated")
         } catch (error) {

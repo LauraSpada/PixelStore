@@ -37,7 +37,7 @@ export class ProductController{
     }
 
     static async create(req:Request, res: Response) {
-        const {name, price} = req.body
+        const {name, price, stock} = req.body
         const {storeId, categoryId} =req.params
 
         try {
@@ -52,7 +52,8 @@ export class ProductController{
             "store": store,
             "category": category,
             "name": String(name),
-            "price": Boolean(price)
+            "price": Number(price),
+            "stock": Number(stock),
         })
 
         await repo().save(product)
@@ -64,8 +65,8 @@ export class ProductController{
     }
 
     static async update(req: Request, res: Response) {
-        const { name, price } = req.body;
-        const { productId, storeId, categoryId } = req.params;
+        const { price, stock } = req.body;
+        const { productId } = req.params;
 
         try {
             const product = await repo().findOne({
@@ -77,17 +78,18 @@ export class ProductController{
                 return res.status(404).send("Product not found");
             }
 
-            const store = await storeRepo().findOneBy({ id: Number(storeId) });
-            const category = await categoryRepo().findOneBy({ id: Number(categoryId) });
-
-            if (!store || !category) {
-                return res.status(400).send("Store or Category not found");
+            if (price == undefined) {
+                return res.status(400).send("Price not found");
             }
 
-            product.store = store;
-            product.category = category;
-            if (name !== undefined) product.name = String(name);
-            if (price !== undefined) product.price = Boolean(price); 
+            if (stock == undefined) {
+                return res.status(400).send("Stock not found");
+            }
+
+            product.price = Number(price);
+            product.stock = Number(stock);
+            if (price !== undefined) product.price = Number(price); 
+            if (price !== undefined) product.stock = Number(stock);
 
             await repo().save(product);
 
@@ -97,7 +99,6 @@ export class ProductController{
             res.status(500).send("Contact your sys admin");
         }
     }
-
 
     static async delete(req,res){
         const id: number = Number(req.params.id)

@@ -11,7 +11,10 @@ export class Product {
     name: string
 
     @Column()
-    price: boolean
+    price: number
+
+    @Column()
+    stock: number
 
     @ManyToOne(() => Store, store => store.products)
         public store: Store;

@@ -38,16 +38,17 @@ export class CategoryController {
         try {
         const createdCategory = repo().create({name, description})
         await repo().save(createdCategory)
-        res.status(201).send("User created!")
+        res.status(201).send("Category created!")
         } catch (error) {
         console.log(error)
         res.status(500).send("Error while creating new Category")
         }
     }
 
+    /* 
     static async update(req:Request, res: Response) {
         const id: number = Number(req.params.id)
-        const {name} = req.body.name
+        const {name} = req.body
 
         if (!name) {
         res.status(404).send("Name not found")
@@ -69,6 +70,7 @@ export class CategoryController {
         }
         
     }
+    */
 
     static async delete(req,res){
         const id: number = Number(req.params.id)
