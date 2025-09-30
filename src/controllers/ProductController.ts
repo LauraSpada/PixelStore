@@ -65,31 +65,32 @@ export class ProductController{
     }
 
     static async update(req: Request, res: Response) {
-        const { price, stock } = req.body;
-        const { productId } = req.params;
+        const { price, stock, storeId, categoryId } = req.body;
+        const { id } = req.params;
 
         try {
             const product = await repo().findOne({
-                where: { id: Number(productId) },
+                where: { id: Number(id) },
                 relations: ["store", "category"]
             });
 
-            if (!product) {
-                return res.status(404).send("Product not found");
+            if (!product) return res.status(404).send("Product not found");
+
+            // Atualiza apenas se o campo foi enviado
+            if (price !== undefined) product.price = Number(price);
+            if (stock !== undefined) product.stock = Number(stock);
+
+            if (storeId !== undefined) {
+                const store = await storeRepo().findOne({ where: { id: Number(storeId) } });
+                if (!store) return res.status(404).send("Store not found");
+                product.store = store;
             }
 
-            if (price == undefined) {
-                return res.status(400).send("Price not found");
+            if (categoryId !== undefined) {
+                const category = await categoryRepo().findOne({ where: { id: Number(categoryId) } });
+                if (!category) return res.status(404).send("Category not found");
+                product.category = category;
             }
-
-            if (stock == undefined) {
-                return res.status(400).send("Stock not found");
-            }
-
-            product.price = Number(price);
-            product.stock = Number(stock);
-            if (price !== undefined) product.price = Number(price); 
-            if (price !== undefined) product.stock = Number(stock);
 
             await repo().save(product);
 

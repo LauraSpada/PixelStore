@@ -1,12 +1,14 @@
 import {Router} from "express";
 import { StoreController } from "src/controllers/StoreController";
+import { authenticate } from '../middlewares/Auth';
 
 const router = Router();
 
 router.get('/', StoreController.getAll)
 router.get('/:id', StoreController.getById)
-router.post('/', StoreController.create)
-router.put('/:id', StoreController.update)
-router.delete('/:id', StoreController.delete)
+
+router.post('/', authenticate, StoreController.create)
+router.put('/:id', authenticate, StoreController.update)
+router.delete('/:id', authenticate, StoreController.delete)
 
 export default router

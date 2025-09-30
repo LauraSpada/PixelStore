@@ -1,12 +1,14 @@
 import {Router} from "express";
 import { CategoryController } from "src/controllers/CategoryController";
+import { authenticate } from '../middlewares/Auth';
 
 const router = Router();
 
 router.get('/', CategoryController.getAll)
 router.get('/:id', CategoryController.getById)
-router.post('/', CategoryController.create)
+
+router.post('/', authenticate, CategoryController.create)
 //router.put('/:id', CategoryController.update)
-router.delete('/:id', CategoryController.delete)
+router.delete('/:id', authenticate, CategoryController.delete)
 
 export default router
