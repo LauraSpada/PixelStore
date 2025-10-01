@@ -1,6 +1,6 @@
 import { Request, Response, urlencoded } from "express";
-import { AppDataSource } from "src/config/datasource";
-import { Category } from "src/entities/Category";
+import { AppDataSource } from "../config/datasource";
+import { Category } from "../entities/Category";
 import { SimpleConsoleLogger } from "typeorm";
 
 const repo = () => AppDataSource.getRepository(Category)
@@ -38,7 +38,10 @@ export class CategoryController {
         try {
         const createdCategory = repo().create({name, description})
         await repo().save(createdCategory)
-        res.status(201).send("Category created!")
+        res.status(201).json({
+            message: "Category created!",
+            data: createdCategory
+        });
         } catch (error) {
         console.log(error)
         res.status(500).send("Error while creating new Category")

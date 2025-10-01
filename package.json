@@ -7,6 +7,11 @@
   "type": "commonjs",
   "main": "server.ts",
   "scripts": {
+    "test": "jest --runInBand",
+    "test:auth": "jest --runInBand tests/auth.test.ts",        
+    "test:product": "jest --runInBand tests/product.test.ts",    
+    "test:store": "jest --runInBand tests/store.test.ts",      
+    "test:category": "jest --runInBand tests/category.test.ts",  
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts,js --exec \"ts-node -r tsconfig-paths/register src/server.ts\"",
@@ -29,7 +34,12 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.2"

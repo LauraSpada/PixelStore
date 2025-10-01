@@ -1,7 +1,7 @@
 import { Request, Response, urlencoded } from "express";
-import { AppDataSource } from "src/config/datasource";
+import { AppDataSource } from "../config/datasource";
 import { SimpleConsoleLogger } from "typeorm";
-import { Store } from "src/entities/Store"
+import { Store } from "../entities/Store"
 
 const repo = () => AppDataSource.getRepository(Store)
 
@@ -38,7 +38,10 @@ export class StoreController {
         try {
         const createdStore = repo().create({name, location})
         await repo().save(createdStore)
-        res.status(201).send("Store created!")
+        res.status(201).json({
+            message: "Store created!",
+            data: createdStore
+        });
         } catch (error) {
         console.log(error)
         res.status(500).send("Error while creating new store")
@@ -46,28 +49,28 @@ export class StoreController {
     }
 
     static async update(req:Request, res: Response) {
-        const id: number = Number(req.params.id)
-        const {location} = req.body
-
-        if (!location) {
-        res.status(404).send("Name not found")
-        }
-
-        const store = await repo().findOneBy({id})
-
-        if (!store) {
-        res.status(404).send("Store not found")
-        }
+        const { name, location } = req.body;
+        const { id } = req.params;
 
         try {
-        store.location = location
-        const savedStore = await repo().save(store)
-        res.status(200).send("Store updated")
+            const store = await repo().findOneBy({ id: Number(id) });
+            if (!store) return res.status(404).json({ message: "Store não encontrada" });
+
+            if (name !== undefined) store.name = name;
+            if (location !== undefined) store.location = location;
+
+            const updatedStore = await repo().save(store);
+
+            return res.status(200).json({
+            message: "Store updated!",
+            data: updatedStore
+            });
+
         } catch (error) {
-        console.log(error)
-        res.status(500).send("Error updating Store" + id)
+            console.error(error);
+            return res.status(500).json({ message: "Contact your sys admin" });
         }
-        
+                
     }
 
     static async delete(req,res){
