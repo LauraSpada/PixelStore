@@ -5,11 +5,11 @@ import { User } from "../entities/User";
 
 export const router = Router();
 
-// Usuário de exemplo (em produção, buscaria no banco)
+// Usuário de exemplo
 const fakeUser: User = {
   id: 1,
   name: "admin",
-  password: "$2b$10$tKUKDXmvXuvyzVCFxcARdu3m2kwKBsShxBcYo4ybxG94X49Pfoope" // hash da senha: "123456"
+  password: "$2b$10$tKUKDXmvXuvyzVCFxcARdu3m2kwKBsShxBcYo4ybxG94X49Pfoope" // senha: "123456"
 };
 
 // endpoint de login

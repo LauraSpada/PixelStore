@@ -33,7 +33,62 @@ export class ProductController{
         console.log(error)
         res.status(500).send("Error searching Product" + id)
        }
-       
+    }
+
+    static async getProductsByStore(req: Request, res: Response) {
+        const { storeId } = req.params;
+        try {
+            const products = await repo().find({
+            where: { store: { id: Number(storeId) } },
+            relations: ["store", "category"],
+            });
+            res.status(200).json(products);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Contact your sys admin");
+        }
+    }
+
+    static async getProductsByStoreName(req: Request, res: Response) {
+        const { storeName } = req.params;
+        try {
+            const products = await repo().find({
+            where: { store: { name: storeName } },
+            relations: ["store", "category"],
+            });
+            res.status(200).json(products);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Contact your sys admin");
+        }
+    }
+
+    static async getProductsByCategory(req: Request, res: Response) {
+        const { categoryId } = req.params;
+        try {
+            const products = await repo().find({
+            where: { category: { id: Number(categoryId) } },
+            relations: ["store", "category"],
+            });
+            res.status(200).json(products);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Contact your sys admin");
+        }
+    }
+
+    static async getProductsByCategoryName(req: Request, res: Response) {
+        const { categoryName } = req.params;
+        try {
+            const products = await repo().find({
+            where: { category: { name: categoryName } },
+            relations: ["store", "category"],
+            });
+            res.status(200).json(products);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Contact your sys admin");
+        }
     }
 
     static async create(req: Request, res: Response) {
@@ -66,7 +121,7 @@ export class ProductController{
         console.error(error);
         res.status(500).json({ message: "Error while creating new product" });
     }
-}
+    }
 
 
     static async update(req: Request, res: Response) {
@@ -110,7 +165,7 @@ export class ProductController{
         console.error(error);
         res.status(500).json({ message: "Error while updating product" });
     }
-}
+    }
 
 
     static async delete(req,res){

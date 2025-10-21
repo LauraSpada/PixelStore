@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { User } from "../entities/User"; // sua entidade de usuário
+import { User } from "../entities/User"; 
 import { AppDataSource } from "../config/datasource";
 
 const SECRET_KEY = process.env.JWT_SECRET || "minha_chave_super_secreta";
