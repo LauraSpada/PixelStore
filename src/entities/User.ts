@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Store } from "./Store";
 
 @Entity()
 export class User {
@@ -10,6 +11,7 @@ export class User {
 
   @Column()
   password: string; // hash da senha
-}
 
-// apenas para login
+  @ManyToOne(() => Store, store => store.users)
+    public store: Store;
+}
