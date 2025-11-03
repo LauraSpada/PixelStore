@@ -4,7 +4,7 @@ import { authenticate } from '../middlewares/Auth';
 
 const router = Router();
 
-router.post('/', UserController.create)
+router.post('/store/:storeId', UserController.create)
 router.get('/', UserController.getAll)
 
 router.delete('/:id', authenticate, UserController.delete)
