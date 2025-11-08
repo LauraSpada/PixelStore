@@ -32,6 +32,29 @@ export class CategoryController {
     
     }
 
+    static async getProductsByCategory(req: Request, res: Response) {
+        const { categoryId } = req.params;
+
+        try {
+            const category = await repo().findOne({
+            where: { id: Number(categoryId) },
+            relations: ["products"], 
+            });
+
+            if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+            }
+
+            res.status(200).json({
+            message: `Products from category '${category.name}'`,
+            data: category.products,
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Error fetching products from category" });
+        }
+    }
+
     static async create(req:Request, res: Response) {
         const {name, description} = req.body
 
@@ -48,7 +71,6 @@ export class CategoryController {
         }
     }
 
-    /* 
     static async update(req:Request, res: Response) {
         const id: number = Number(req.params.id)
         const {name} = req.body
@@ -73,7 +95,6 @@ export class CategoryController {
         }
         
     }
-    */
 
     static async delete(req,res){
         const id: number = Number(req.params.id)

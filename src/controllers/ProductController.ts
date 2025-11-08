@@ -35,65 +35,8 @@ export class ProductController{
        }
     }
 
-    static async getProductsByStore(req: Request, res: Response) {
-        const { storeId } = req.params;
-        try {
-            const products = await repo().find({
-            where: { store: { id: Number(storeId) } },
-            relations: ["store", "category"],
-            });
-            res.status(200).json(products);
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("Contact your sys admin");
-        }
-    }
-
-    static async getProductsByStoreName(req: Request, res: Response) {
-        const { storeName } = req.params;
-        try {
-            const products = await repo().find({
-            where: { store: { name: storeName } },
-            relations: ["store", "category"],
-            });
-            res.status(200).json(products);
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("Contact your sys admin");
-        }
-    }
-
-    static async getProductsByCategory(req: Request, res: Response) {
-        const { categoryId } = req.params;
-        try {
-            const products = await repo().find({
-            where: { category: { id: Number(categoryId) } },
-            relations: ["store", "category"],
-            });
-            res.status(200).json(products);
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("Contact your sys admin");
-        }
-    }
-
-    static async getProductsByCategoryName(req: Request, res: Response) {
-        const { categoryName } = req.params;
-        try {
-            const products = await repo().find({
-            where: { category: { name: categoryName } },
-            relations: ["store", "category"],
-            });
-            res.status(200).json(products);
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("Contact your sys admin");
-        }
-    }
-
     static async create(req: Request, res: Response) {
-    const { name, price, stock } = req.body;
-    const { storeId, categoryId } = req.params;
+    const { name, price, stock, storeId, categoryId } = req.body;
 
     try {
         const store = await storeRepo().findOneBy({ id: Number(storeId) });
@@ -117,10 +60,10 @@ export class ProductController{
             message: "Product created!",
             data: createdProduct
         });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error while creating new product" });
-    }
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Error while creating new product" });
+        }
     }
 
 

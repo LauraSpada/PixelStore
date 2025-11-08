@@ -7,6 +7,22 @@ const repo = () => AppDataSource.getRepository(Store)
 
 export class StoreController {
 
+    static async create(req:Request, res: Response) {
+        const {name, location} = req.body
+
+        try {
+        const createdStore = repo().create({name, location})
+        await repo().save(createdStore)
+        res.status(201).json({
+            message: "Store created!",
+            data: createdStore
+        });
+        } catch (error) {
+        console.log(error)
+        res.status(500).send("Error while creating new store")
+        }
+    }
+
     static async getAll(req: Request, res: Response) {
         const stores = await repo().find({ order: { name: "ASC" }})
 
@@ -32,19 +48,49 @@ export class StoreController {
     
     }
 
-    static async create(req:Request, res: Response) {
-        const {name, location} = req.body
+    static async getUsersByStore(req: Request, res: Response) {
+        const { storeId } = req.params;
 
         try {
-        const createdStore = repo().create({name, location})
-        await repo().save(createdStore)
-        res.status(201).json({
-            message: "Store created!",
-            data: createdStore
+        const store = await repo().findOne({
+            where: { id: Number(storeId) },
+            relations: ["users"], 
+        });
+
+        if (!store) {
+            return res.status(404).json({ message: "Store not found" });
+        }
+
+        res.status(200).json({
+            message: `Usuários da loja '${store.name}'`,
+            data: store.users,
         });
         } catch (error) {
-        console.log(error)
-        res.status(500).send("Error while creating new store")
+        console.error(error);
+        res.status(500).send("Error while fetching users from store");
+        }
+    }
+
+    static async getProductsByStore(req: Request, res: Response) {
+        const { storeId } = req.params;
+
+        try {
+            const store = await repo().findOne({
+            where: { id: Number(storeId) },
+            relations: ["products"], 
+            });
+
+            if (!store) {
+            return res.status(404).json({ message: "Store not found" });
+            }
+
+            res.status(200).json({
+            message: `Products from store '${store.name}'`,
+            data: store.products,
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Error fetching products from store" });
         }
     }
 

@@ -6,9 +6,10 @@ const router = Router();
 
 router.get('/', CategoryController.getAll)
 router.get('/:id', CategoryController.getById)
+router.get('/:categoryId/products', CategoryController.getProductsByCategory)
 
 router.post('/', authenticate, CategoryController.create)
-//router.put('/:id', CategoryController.update)
+router.put('/:id', authenticate, CategoryController.update)
 router.delete('/:id', authenticate, CategoryController.delete)
 
 export default router
