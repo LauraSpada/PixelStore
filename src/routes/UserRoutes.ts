@@ -4,8 +4,8 @@ import { authenticate } from '../middlewares/Auth';
 
 const router = Router();
 
-router.post('/', UserController.create)
 router.get('/', UserController.getAll)
+router.post('/', UserController.create)
 
 router.put('/:id', authenticate, UserController.update)
 router.delete('/:id', authenticate, UserController.delete)

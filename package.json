@@ -8,7 +8,9 @@
   "main": "server.ts",
   "scripts": {
     "test": "jest --runInBand",
-    "test:auth": "jest --runInBand tests/auth.test.ts",        
+    "test:integration": "jest --runInBand tests/integration.test.ts",
+    "test:auth": "jest --runInBand tests/auth.test.ts",  
+    "test:user": "jest --runInBand tests/user.test.ts",      
     "test:product": "jest --runInBand tests/product.test.ts",    
     "test:store": "jest --runInBand tests/store.test.ts",      
     "test:category": "jest --runInBand tests/category.test.ts",  
