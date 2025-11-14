@@ -10,7 +10,8 @@ const storeRepo = () => AppDataSource.getRepository(Store)
 export class UserController {
 
     static async create(req: Request, res: Response) {
-        const { name, password, storeId } = req.body;
+        const { name, password } = req.body;
+        const { storeId } = req.params;
 
         if (!name || !password || !storeId) {
             return res.status(400).json({ message: "Name, password and storeId are required" });
@@ -39,6 +40,24 @@ export class UserController {
         } catch (error) {
             console.error(error);
             res.status(500).send("Error while creating user");
+        }
+    }
+
+    static async getById(req: Request, res: Response) {
+        const id: number = Number(req.params.id)
+    
+        const user = await repo().findOneBy({id})
+    
+        try {
+            const user = await repo().findOneBy({id})
+            if (!user) {
+            res.status(404).send("User not found")
+            }
+    
+            res.status(200).json(user)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send("Error searching User" + id)
         }
     }
 

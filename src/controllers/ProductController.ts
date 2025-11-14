@@ -36,7 +36,8 @@ export class ProductController{
     }
 
     static async create(req: Request, res: Response) {
-    const { name, price, stock, storeId, categoryId } = req.body;
+    const { name, price, stock } = req.body;
+    const { storeId, categoryId } = req.params;
 
     try {
         const store = await storeRepo().findOneBy({ id: Number(storeId) });
@@ -68,7 +69,7 @@ export class ProductController{
 
 
     static async update(req: Request, res: Response) {
-    const { name, price, stock, storeId, categoryId } = req.body;
+    const { name, price, stock } = req.body;
     const { id } = req.params;
 
     try {
@@ -79,18 +80,6 @@ export class ProductController{
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
-        }
-
-        if (storeId) {
-            const store = await storeRepo().findOneBy({ id: Number(storeId) });
-            if (!store) return res.status(400).json({ message: "Store not found" });
-            product.store = store;
-        }
-
-        if (categoryId) {
-            const category = await categoryRepo().findOneBy({ id: Number(categoryId) });
-            if (!category) return res.status(400).json({ message: "Category not found" });
-            product.category = category;
         }
 
         if (name !== undefined) product.name = name;
