@@ -16,10 +16,8 @@ export class Product {
     @Column()
     stock: number
 
-    @ManyToOne(() => Store, store => store.products)
-        public store: Store;
-
+   
     @ManyToOne(() => Category, category => category.products)
-        public category: Category;
+        public category : Category;
 
 }

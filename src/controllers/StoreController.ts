@@ -76,21 +76,49 @@ export class StoreController {
 
         try {
             const store = await repo().findOne({
-            where: { id: Number(storeId) },
-            relations: ["products"], 
+                where: { id: Number(storeId) },
+                relations: ["categories", "categories.products"], 
             });
 
             if (!store) {
-            return res.status(404).json({ message: "Store not found" });
+                return res.status(404).json({ message: "Store not found" });
             }
 
+            const products = store.categories
+                .flatMap(category => category.products || []);
+
             res.status(200).json({
-            message: `Products from store '${store.name}'`,
-            data: store.products,
+                message: `Products from store '${store.name}'`,
+                data: products,
             });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: "Error fetching products from store" });
+        }
+    }
+
+    static async getCategoriesByStore(req: Request, res: Response) {
+        const { storeId } = req.params;
+
+        try {
+            const store = await repo().findOne({
+                where: { id: Number(storeId) },
+                relations: ["categories"], 
+            });
+
+            if (!store) {
+                return res.status(404).json({ message: "Store not found" });
+            }
+
+            const categories = store.categories || [];
+
+            res.status(200).json({
+                message: `Categories from store '${store.name}'`,
+                data: categories
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Error fetching categories from store" });
         }
     }
 

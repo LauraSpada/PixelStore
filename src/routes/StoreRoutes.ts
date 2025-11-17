@@ -7,6 +7,7 @@ const router = Router();
 router.get('/', StoreController.getAll)
 router.get('/:id', StoreController.getById)
 router.get('/:storeId/users', StoreController.getUsersByStore)
+router.get('/:storeId/categories', StoreController.getCategoriesByStore)
 router.get('/:storeId/products', StoreController.getProductsByStore)
 router.post('/', StoreController.create)
 

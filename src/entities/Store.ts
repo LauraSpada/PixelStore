@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Product } from "./Product";
 import { User } from "./User";
+import { Category } from "./Category";
 
 @Entity()
 export class Store {
@@ -13,8 +13,8 @@ export class Store {
     @Column()
     location: string 
 
-    @OneToMany(() => Product, product => product.store)
-        public products: Product[];
+    @OneToMany(() => Category, category => category.store)
+        public categories : Category[];
     
     @OneToMany(() => User, user => user.store)
         public users: User[];

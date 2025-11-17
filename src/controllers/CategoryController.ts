@@ -2,8 +2,10 @@ import { Request, Response, urlencoded } from "express";
 import { AppDataSource } from "../config/datasource";
 import { Category } from "../entities/Category";
 import { SimpleConsoleLogger } from "typeorm";
+import { Store } from "src/entities/Store";
 
 const repo = () => AppDataSource.getRepository(Category)
+const storeRepo = () => AppDataSource.getRepository(Store)
 
 export class CategoryController {
 
@@ -55,19 +57,37 @@ export class CategoryController {
         }
     }
 
-    static async create(req:Request, res: Response) {
-        const {name, description} = req.body
+    static async create(req: Request, res: Response) {
+        const { name, description } = req.body;
+        const { storeId } = req.params;
+
+        if (!name || !description || !storeId) {
+            return res.status(400).json({ message: "Name, description and storeId are required" });
+        }
 
         try {
-        const createdCategory = repo().create({name, description})
-        await repo().save(createdCategory)
-        res.status(201).json({
-            message: "Category created!",
-            data: createdCategory
-        });
+            const store = await storeRepo().findOneBy({ id: Number(storeId) });
+
+            if (!store) {
+            return res.status(404).json({ message: "Store not found" });
+            }
+
+            const createdCategory = repo().create({
+            name,
+            description,
+            store, 
+            });
+
+            await repo().save(createdCategory);
+
+            res.status(201).json({
+            message: "Category created successfully!",
+            data: createdCategory,
+            });
+            
         } catch (error) {
-        console.log(error)
-        res.status(500).send("Error while creating new Category")
+            console.error(error);
+            res.status(500).send("Error while creating Category");
         }
     }
 
@@ -93,7 +113,6 @@ export class CategoryController {
         console.log(error)
         res.status(500).send("Error updating Category" + id)
         }
-        
     }
 
     static async delete(req,res){

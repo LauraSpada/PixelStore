@@ -14,4 +14,5 @@ export class User {
 
   @ManyToOne(() => Store, store => store.users)
     public store: Store;
+    
 }
