@@ -62,7 +62,7 @@ export class ProductController{
     }
 
     static async update(req: Request, res: Response) {
-        const { name, price, stock } = req.body;
+        const { name, price, stock, categoryId } = req.body;
         const { id } = req.params;
 
         try {
@@ -79,9 +79,21 @@ export class ProductController{
             if (price !== undefined) product.price = Number(price);
             if (stock !== undefined) product.stock = Number(stock);
 
+            if (categoryId !== undefined) {
+                const category = await categoryRepo().findOne({
+                    where: { id: Number(categoryId) }
+                });
+
+                if (!category) {
+                    return res.status(404).json({ message: "Category not found" });
+                }
+
+                product.category = category;
+            }
+
             const updatedProduct = await repo().save(product);
 
-            res.status(200).json({
+            return res.status(200).json({
                 message: "Product updated!",
                 data: updatedProduct
             });
@@ -91,6 +103,7 @@ export class ProductController{
             res.status(500).json({ message: "Error while updating product" });
         }
     }
+
 
     static async delete(req,res){
         const id: number = Number(req.params.id)

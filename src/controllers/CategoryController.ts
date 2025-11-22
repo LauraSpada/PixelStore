@@ -2,7 +2,7 @@ import { Request, Response, urlencoded } from "express";
 import { AppDataSource } from "../config/datasource";
 import { Category } from "../entities/Category";
 import { SimpleConsoleLogger } from "typeorm";
-import { Store } from "src/entities/Store";
+import { Store } from "../entities/Store";
 
 const repo = () => AppDataSource.getRepository(Category)
 const storeRepo = () => AppDataSource.getRepository(Store)
@@ -93,10 +93,14 @@ export class CategoryController {
 
     static async update(req:Request, res: Response) {
         const id: number = Number(req.params.id)
-        const {name} = req.body
+        const {name, description} = req.body
 
         if (!name) {
         res.status(404).send("Name not found")
+        }
+
+        if (!description) {
+        res.status(404).send("Description not found")
         }
 
         const category = await repo().findOneBy({id})
@@ -107,6 +111,7 @@ export class CategoryController {
 
         try {
         category.name = name
+        category.description = description
         const savedCategory = await repo().save(category)
         res.status(200).send("Category updated")
         } catch (error) {

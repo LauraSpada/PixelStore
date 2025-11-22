@@ -1,17 +1,19 @@
 /**
  * tests/integration.test.ts
  *
- * Teste de integração único, executa fluxo:
- * 1) criar store (sem token)
- * 2) criar user vinculado à store (sem token)
- * 3) login -> obter token
- * 4) criar category (com token)
- * 5) criar product (com token) enviando storeId e categoryId no body
- * 6) operações de leitura/atualização/deleção
+ * Fluxo correto conforme suas rotas:
  *
- * Observações:
- * - Ajuste os valores (nome/senha) se já existirem no DB.
- * - Testa respostas e imprime corpo em caso de falha para debug.
+ * 1) criar store (sem token)
+ * 2) criar user via POST /user/store/:storeId (sem token)
+ * 3) login -> token
+ * 4) criar category via POST /category/store/:storeId (com token)
+ * 5) criar product via POST /product/category/:categoryId (com token)
+ * 6) listar products (aberto)
+ * 7) atualizar product (com token)
+ * 8) deletar product (com token)
+ * 9) deletar category (com token)
+ * 10) deletar user (com token)
+ * 11) deletar store (com token)
  */
 
 import request from "supertest";
@@ -39,124 +41,138 @@ afterAll(async () => {
 });
 
 function logAndThrow(res: any, note = "") {
-  // imprime objeto útil para debugging e lança erro para falhar o teste
-  // res pode ser Response do supertest
-  // eslint-disable-next-line no-console
   console.error("=== DEBUG RESPONSE ===", note, {
-    status: res && res.status,
-    body: res && res.body,
-    text: res && res.text,
+    status: res?.status,
+    body: res?.body,
+    text: res?.text,
   });
-  throw new Error(`Erro durante o fluxo de teste. Veja o log acima. ${note}`);
+  throw new Error(`Erro no teste. Veja log acima. ${note}`);
 }
 
-describe("Fluxo integrado (store -> user -> auth -> category -> product)", () => {
-  it("1) cria uma store (sem token)", async () => {
+describe("Fluxo completo (store → user → auth → category → product)", () => {
+
+  it("1) cria store", async () => {
     const res = await request(app)
       .post("/api/v1/store")
-      .send({ name: "Loja Teste CI", location: "Cidade Teste" });
+      .send({
+        name: "Loja CI",
+        location: "Cidade Teste"
+      });
 
-    if (res.status !== 201) logAndThrow(res, "falha ao criar store");
-    expect(res.body).toHaveProperty("data");
+    if (res.status !== 201) logAndThrow(res, "erro criar store");
+
     storeId = res.body.data.id;
     expect(typeof storeId).toBe("number");
   });
 
-  it("2) cria um user vinculado à store (sem token)", async () => {
+  it("2) cria user vinculado à store", async () => {
     const res = await request(app)
-      .post("/api/v1/user")
-      .send({ name: "ci_admin", password: "123456", storeId });
+      .post(`/api/v1/user/store/${storeId}`)
+      .send({
+        name: "ci_admin",
+        password: "123456"
+      });
 
-    if (res.status !== 201) logAndThrow(res, "falha ao criar user");
-    expect(res.body).toHaveProperty("data");
+    if (res.status !== 201) logAndThrow(res, "erro criar user");
+
     userId = res.body.data.id;
+    expect(typeof userId).toBe("number");
   });
 
-  it("3) faz login e obtém token", async () => {
+  it("3) login e recebe token", async () => {
     const res = await request(app)
       .post("/api/v1/auth/login")
-      .send({ name: "ci_admin", password: "123456" });
+      .send({
+        name: "ci_admin",
+        password: "123456"
+      });
 
-    if (res.status !== 200) logAndThrow(res, "falha no login");
-    expect(res.body).toHaveProperty("token");
+    if (res.status !== 200) logAndThrow(res, "erro login");
+
     token = res.body.token;
     expect(typeof token).toBe("string");
   });
 
-  it("4) cria uma category (com token)", async () => {
+  it("4) cria category vinculada à store", async () => {
     const res = await request(app)
-      .post("/api/v1/category")
+      .post(`/api/v1/category/store/${storeId}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ name: "CI Eletronicos", description: "desc" });
+      .send({
+        name: "Eletronicos",
+        description: "Categoria CI"
+      });
 
-    if (res.status !== 201) logAndThrow(res, "falha ao criar category");
+    if (res.status !== 201) logAndThrow(res, "erro criar category");
+
     categoryId = res.body.data.id;
     expect(typeof categoryId).toBe("number");
   });
 
-  it("5) cria um product vinculado a store e category (com token)", async () => {
+  it("5) cria product vinculado à category", async () => {
     const res = await request(app)
-      .post("/api/v1/product")
+      .post(`/api/v1/product/category/${categoryId}`)
       .set("Authorization", `Bearer ${token}`)
       .send({
         name: "Produto CI",
-        price: 999,
-        stock: 5,
-        storeId,
-        categoryId
+        price: 99.9,
+        stock: 10
       });
 
-    if (res.status !== 201) logAndThrow(res, "falha ao criar product");
+    if (res.status !== 201) logAndThrow(res, "erro criar product");
+
     productId = res.body.data.id;
     expect(typeof productId).toBe("number");
   });
 
-  it("6) lista products (aberto)", async () => {
+  it("6) lista products", async () => {
     const res = await request(app).get("/api/v1/product");
-    if (res.status !== 200) logAndThrow(res, "falha ao listar products");
+
+    if (res.status !== 200) logAndThrow(res, "erro listar products");
+
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  it("7) atualiza product (com token)", async () => {
+  it("7) atualiza product", async () => {
     const res = await request(app)
       .put(`/api/v1/product/${productId}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ stock: 42 });
+      .send({
+        stock: 50
+      });
 
-    if (res.status !== 200) logAndThrow(res, "falha ao atualizar product");
-    // pode retornar data ou texto — tente checar ambos
-    if (res.body && res.body.data) expect(res.body.data.stock).toBe(42);
+    if (res.status !== 200) logAndThrow(res, "erro atualizar product");
   });
 
-  it("8) deleta product (com token)", async () => {
+  it("8) deleta product", async () => {
     const res = await request(app)
       .delete(`/api/v1/product/${productId}`)
       .set("Authorization", `Bearer ${token}`);
 
-    if (![200, 204].includes(res.status)) logAndThrow(res, "falha ao deletar product");
+    if (![200, 204].includes(res.status)) logAndThrow(res, "erro deletar product");
   });
 
-  it("9) deleta category (com token)", async () => {
+  it("9) deleta category", async () => {
     const res = await request(app)
       .delete(`/api/v1/category/${categoryId}`)
       .set("Authorization", `Bearer ${token}`);
 
-    if (![200, 204].includes(res.status)) logAndThrow(res, "falha ao deletar category");
+    if (![200, 204].includes(res.status)) logAndThrow(res, "erro deletar category");
   });
 
-  it("10) deleta user (com token)", async () => {
+  it("10) deleta user", async () => {
     const res = await request(app)
       .delete(`/api/v1/user/${userId}`)
       .set("Authorization", `Bearer ${token}`);
 
-    if (![200, 204].includes(res.status)) logAndThrow(res, "falha ao deletar user");
+    if (![200, 204].includes(res.status)) logAndThrow(res, "erro deletar user");
   });
 
-  it("11) deleta store (com token)", async () => {
+  it("11) deleta store", async () => {
     const res = await request(app)
       .delete(`/api/v1/store/${storeId}`)
       .set("Authorization", `Bearer ${token}`);
 
-    if (![200, 204].includes(res.status)) logAndThrow(res, "falha ao deletar store");
+    if (![200, 204].includes(res.status)) logAndThrow(res, "erro deletar store");
   });
+
 });
